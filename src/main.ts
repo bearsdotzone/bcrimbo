@@ -148,12 +148,11 @@ export default function main(): void {
   }
   print(successes, `#00FF00`);
   print(`Total ${crymbocurrencyTotal} Crymbocurrency, ${meatTotal} meat`);
-  print(
-    `Possible Crymbocurrency ${
-      availableAmount($item`Crymbocurrency`) +
-      availableAmount($item`burnt skull`) * 50 +
-      availableAmount($item`burnt rib`) * 20 +
-      availableAmount($item`burnt skull`) * 10
+  print(`Possible Crymbocurrency 
+    ${availableAmount($item`Crymbocurrency`) +
+    availableAmount($item`burnt skull`) * 50 +
+    availableAmount($item`burnt rib`) * 20 +
+    availableAmount($item`burnt skull`) * 10
     }`,
   );
 }
