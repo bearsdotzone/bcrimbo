@@ -152,7 +152,8 @@ export default function main(): void {
     ${availableAmount($item`Crymbocurrency`) +
     availableAmount($item`burnt skull`) * 50 +
     availableAmount($item`burnt rib`) * 20 +
-    availableAmount($item`burnt skull`) * 10
-    }`,
-  );
+    availableAmount($item`burnt radius`) * 10 +
+    availableAmount($item`burnt phalange`) * 5 +
+    availableAmount($item`burnt incisor`)
+    }`);
 }
