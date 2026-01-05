@@ -1,156 +1,249 @@
 /* eslint-disable libram/verify-constants */
 import {
   availableAmount,
+  bufferToFile,
   displayAmount,
   Item,
-  mallPrice,
   print,
-  sellPrice,
-  sellsItem,
+  printHtml,
+  toSlot,
   visitUrl,
+  weaponHands,
 } from "kolmafia";
-import { $coinmaster, $item } from "libram";
+import { $item, $slot } from "libram";
 
-let crymbocurrencyTotal = 0;
-let meatTotal = 0;
-
-function printPrice(iItem: Item) {
-  if (sellsItem($coinmaster`The HMS Bounty Hunter`, iItem)) {
-    const price = sellPrice($coinmaster`The HMS Bounty Hunter`, iItem);
-    print(`Buy for ${price} Crymbocurrency`);
-    crymbocurrencyTotal += price;
-  } else {
-    const price = mallPrice(iItem);
-    print(`Buy for ${price} meat`, `#FF00FF`);
-    meatTotal += price;
-  }
+function sanitizeString(input: string) {
+  return input.replace(/\n/g, "").replace(/ {2}/g, "");
 }
 
 export default function main(): void {
-  const desirables: [Item, number][] = [
-    [$item`treasure chestnut`, 1],
-    [$item`mulled butter rum`, 1],
-    [$item`cinnamon doubloon`, 1],
-    [$item`Crymbocurrency`, 1],
-    [$item`extra-thick Crimbo sweater`, 2],
-    [$item`The Encyclopedia of Holiday Funerary Rites`, 1],
-    [$item`Steve Abrams' Holiday Sampler Beer`, 2],
-    [$item`crate of prize-winning rum`, 1],
-    [$item`bottle of prize-winning rum`, 2],
-    [$item`Santa-Slayer medal`, 1],
-    [$item`Skull of Claus`, 1],
-    [$item`boiling bone marrow`, 1],
-    [$item`boiling cerebrospinal fluid`, 1],
-    [$item`boiling synovial fluid`, 1],
-    [$item`smoldering vertebra`, 2],
-    [$item`smoldering bone dust`, 1],
-    [$item`volatile bone bomb`, 1],
-    [$item`hot boning knife`, 3],
-    [$item`flaming fistbone`, 3],
-    [$item`burnt bone belt`, 2],
-    [$item`scorched skull trophy`, 1],
-    [$item`wing bone`, 2],
-    [$item`weak skeleton venom`, 2],
-    [$item`baked bone meal`, 1],
-    [$item`tiny plastic skeleton rib cage`, 1],
-    [$item`tiny plastic skeleton skull`, 1],
-    [$item`tiny plastic skeleton Crimbo hat`, 1],
-    [$item`tiny plastic left skeleton arm`, 1],
-    [$item`tiny plastic left skeleton leg`, 1],
-    [$item`tiny plastic right skeleton arm`, 1],
-    [$item`tiny plastic right skeleton leg`, 1],
-    [$item`tiny plastic skeleton pelvis`, 1],
-    [$item`assembled tiny plastic Santa skeleton`, 1],
-    [$item`miniature sleigh`, 1],
-    [$item`undertakers' forceps`, 4],
-    [$item`bone-polishing rag`, 3],
-    [$item`scorched skeleton mask`, 3],
-    [$item`scorched skeleton shirt`, 2],
-    [$item`scorched skeleton pants`, 3],
-    [$item`messenger parrot egg`, 1],
-    [$item`buryable chest`, 1],
-    [$item`Shanty: Let's Beat Up This Drunken Sailor`, 1],
-    [$item`Shanty: Let's Beat Up This Drunken Sailor (used)`, 1],
-    [$item`Shanty: I'm Smarter Than a Drunken Sailor`, 1],
-    [$item`Shanty: I'm Smarter Than a Drunken Sailor (used)`, 1],
-    [$item`Shanty: Look At That Drunken Sailor Dance`, 1],
-    [$item`Shanty: Look At That Drunken Sailor Dance (used)`, 1],
-    [$item`Shanty: Who's Going to Pay This Drunken Sailor?`, 1],
-    [$item`Shanty: Who's Going to Pay This Drunken Sailor? (used)`, 1],
-    [$item`Shanty: Only Dogs Love a Drunken Sailor`, 1],
-    [$item`Shanty: Only Dogs Love Drunken Sailors (used)`, 1],
-    [$item`Crymbocurrency tattoo`, 2],
-    [$item`fireproof bonesaw`, 4],
-    [$item`vermiculite shield`, 3],
-    [$item`cursed ship's lantern`, 3],
-    [$item`heat-resistant harpoon pistol`, 4],
-    [$item`traditional gingerloaf`, 1],
-    [$item`Scotch and eggnog`, 1],
-    [$item`counterskeleton elixir`, 1],
-    [$item`"salvaged" wine`, 1],
-    [$item`The Encyclopedia of Holiday Funerary Rites (used)`, 1],
-    [$item`crate of prize-winning cheese`, 1],
-    [$item`wedge of prize-winning cheese`, 1],
-    [$item`gummi fingerbone`, 1],
-    [$item`glimmering golden crystal`, 1],
+  const equippable: Item[] = [
+    $item`bone-polishing rag`,
+    $item`burnt bone belt`,
+    $item`cursed ship's lantern`,
+    $item`extra-thick Crimbo sweater`,
+    $item`fireproof bonesaw`,
+    $item`flaming fistbone`,
+    $item`heat-resistant harpoon pistol`,
+    $item`hot boning knife`,
+    $item`scorched skeleton mask`,
+    $item`scorched skeleton pants`,
+    $item`scorched skeleton shirt`,
+    $item`smoldering vertebra`,
+    $item`undertakers' forceps`,
+    $item`vermiculite shield`,
   ];
 
-  let successes = `☑️`;
-  for (let i = 0; i < desirables.length; i++) {
-    const iItem = desirables[i][0];
-    const have = displayAmount(iItem) + availableAmount(iItem);
-    const desired = desirables[i][1];
-    if (iItem.fullness || iItem.inebriety) {
-      const eaten = visitUrl("showconsumption.php").includes(iItem.name);
-      if (displayAmount(iItem) >= 1 && eaten) {
-        successes = successes.concat(` ${iItem.name}`);
-      } else {
-        print(`~ ${iItem.name}`);
-        if (!eaten) {
-          print(`\t Need to eat ${iItem.name}`);
-          if (availableAmount(iItem) === 0) printPrice(iItem);
-        }
-        if (displayAmount(iItem) === 0) {
-          print(`\t Need to display ${iItem.name}`);
-        }
-      }
-    } else if (iItem === $item`Crymbocurrency tattoo`) {
-      const displayed = displayAmount(iItem) > 0;
-      const learned = visitUrl("account_tattoos.php").includes("cryptotat.gif");
-      if (displayed && learned) {
-        successes = successes.concat(` ${iItem.name}`);
-      } else if (displayed) {
-        print(`~ ${iItem.name}`);
-        print(`\t Need to learn ${iItem.name}`);
-      } else if (learned) {
-        print(`~ ${iItem.name}`);
-        print(`\t Need to display ${iItem.name}`);
-      } else {
-        print(`❌ ${iItem.name} - ${have} / ${desired}`);
-      }
-    } else {
-      if (have >= desired) {
-        if (displayAmount(iItem) >= 1) {
-          successes = successes.concat(` ${iItem.name}`);
-        } else {
-          print(`~ ${iItem.name}`);
-        }
-      } else {
-        print(`❌ ${iItem.name} - ${have} / ${desired}`);
-        for (let j = 0; j < desired - have; j++) {
-          printPrice(iItem);
-        }
-      }
-    }
+  const oneOffs: Item[] = [
+    $item`assembled tiny plastic Santa skeleton`,
+    $item`baked bone meal`,
+    $item`boiling bone marrow`,
+    $item`boiling cerebrospinal fluid`,
+    $item`boiling synovial fluid`,
+    $item`burnt incisor`,
+    $item`burnt phalange`,
+    $item`burnt radius`,
+    $item`burnt rib`,
+    $item`burnt skull`,
+    $item`buryable chest`,
+    $item`cinnamon doubloon`,
+    $item`counterskeleton elixir`,
+    $item`crate of prize-winning cheese`,
+    $item`crate of prize-winning rum`,
+    $item`Crymbocurrency`,
+    $item`glimmering golden crystal`,
+    $item`gummi fingerbone`,
+    $item`messenger parrot egg`,
+    $item`miniature sleigh`,
+    $item`Santa-Slayer medal`,
+    $item`scorched skull trophy`,
+    $item`Skull of Claus`,
+    $item`smoldering bone dust`,
+    $item`tiny plastic left skeleton arm`,
+    $item`tiny plastic left skeleton leg`,
+    $item`tiny plastic right skeleton arm`,
+    $item`tiny plastic right skeleton leg`,
+    $item`tiny plastic skeleton Crimbo hat`,
+    $item`tiny plastic skeleton pelvis`,
+    $item`tiny plastic skeleton rib cage`,
+    $item`tiny plastic skeleton skull`,
+    $item`volatile bone bomb`,
+  ];
+
+  const skillBooks: Item[] = [
+    $item`Shanty: I'm Smarter Than a Drunken Sailor`,
+    $item`Shanty: Let's Beat Up This Drunken Sailor`,
+    $item`Shanty: Look At That Drunken Sailor Dance`,
+    $item`Shanty: Only Dogs Love a Drunken Sailor`,
+    $item`Shanty: Who's Going to Pay This Drunken Sailor?`,
+    $item`The Encyclopedia of Holiday Funerary Rites`,
+  ];
+
+  const consumables: Item[] = [
+    $item`bottle of prize-winning rum`,
+    $item`mulled butter rum`,
+    $item`"salvaged" wine`,
+    $item`Scotch and eggnog`,
+    $item`Steve Abrams' Holiday Sampler Beer`,
+    $item`traditional gingerloaf`,
+    $item`treasure chestnut`,
+    $item`weak skeleton venom`,
+    $item`wedge of prize-winning cheese`,
+    $item`wing bone`,
+  ];
+
+  const tattoo = $item`Crymbocurrency tattoo`;
+
+  print("One-offs", "#FFFF00");
+  let oneoffTable = "<table border=2>";
+  oneoffTable += `
+  <tr>
+    <th></th>
+    <th>Display</th>
+    <th></th>
+    <th>Display</th>
+  </tr>`;
+  const entries: string[] = [];
+  oneOffs.forEach((x) => {
+    entries.push(
+      `<td>${x.name}</td>
+      ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>`,
+    );
+  });
+  const rows = Math.ceil(entries.length / 2.0);
+  for (let i = 0; i < rows; i++) {
+    oneoffTable += `<tr>${entries[i]}${i + rows < entries.length ? entries[i + rows] : ""}</tr>`;
   }
-  print(successes, `#00FF00`);
-  print(`Total ${crymbocurrencyTotal} Crymbocurrency, ${meatTotal} meat`);
-  const availableCrymbocurrency =
-    availableAmount($item`Crymbocurrency`) +
-    availableAmount($item`burnt skull`) * 50 +
-    availableAmount($item`burnt rib`) * 20 +
-    availableAmount($item`burnt radius`) * 10 +
-    availableAmount($item`burnt phalange`) * 5 +
-    availableAmount($item`burnt incisor`);
-  print(`Possible Crymbocurrency ${availableCrymbocurrency}`);
+  oneoffTable += "</table>";
+  printHtml(sanitizeString(oneoffTable), false);
+
+  const consumeHistory = visitUrl("showconsumption.php");
+  print("Consumables", "#FFFF00");
+  let consumableTable = "<table border=2>";
+  consumableTable += `<tr>
+  <th></th>
+  <th>Display</th>
+  <th>Consumed</th>
+  </tr>`;
+  consumables.forEach((x) => {
+    consumableTable += `<tr>
+    <td>${x.name}</td>
+    ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    ${consumeHistory.includes(x.name) ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    </tr>`;
+  });
+  consumableTable += "</table>";
+  printHtml(sanitizeString(consumableTable), false);
+
+  print("Skillbooks", "#FFFF00");
+  let skillbookTable = "<table border=2>";
+  skillbookTable += `
+  <tr>
+    <th></th>
+    <th>Display</th>
+    <th>Display (used)</th>
+    <th>Have (used)</th>
+  </tr>`;
+  skillBooks.forEach((x) => {
+    const used =
+      x === $item`Shanty: Only Dogs Love a Drunken Sailor`
+        ? $item`Shanty: Only Dogs Love Drunken Sailors (used)`
+        : $item`${x.name} (used)`;
+    skillbookTable += `<tr>
+    <td>${x.name}</td>
+    ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    ${displayAmount(used) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    ${availableAmount(used) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    </tr>`;
+  });
+  skillbookTable += "</table>";
+  printHtml(sanitizeString(skillbookTable), false);
+
+  print("Tattoo", "#FFFF00");
+  const tattooTable = `<table border=2>
+    <tr>
+      <th></th>
+      <th>Display</th>
+      <th>Learned</th>
+    </tr>
+    <tr>
+      <td>${tattoo.name}</td>
+      ${displayAmount(tattoo) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+      ${visitUrl("account_tattoos.php").includes("cryptotat.gif") ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    </tr>
+  </table>`;
+  printHtml(sanitizeString(tattooTable), false);
+
+  print("Equipment", "#FFFF00");
+  let equipmentTable = "<table border=2>";
+  equipmentTable += `<tr>
+  <th></th>
+  <th>Display</th>
+  <th>Personal</th>
+  <th>Sicko</th>
+  <th>Slot</th>
+  <th>Single Equip</th>
+  </tr>`;
+  equippable.forEach((x) => {
+    let sickoAmount = 1;
+    switch (toSlot(x)) {
+      case $slot`hat`:
+      case $slot`off-hand`:
+      case $slot`pants`:
+        sickoAmount = 2;
+        break;
+      case $slot`weapon`:
+        sickoAmount = weaponHands(x) === 1 ? 3 : 1;
+        break;
+      default:
+        sickoAmount = 1;
+    }
+
+    const singleEquip = visitUrl(`desc_item.php?whichitem=${x.descid}`).includes(
+      "You may not equip more than one of these at a time.",
+    );
+    if (singleEquip) {
+      sickoAmount = 1;
+    }
+
+    equipmentTable += `<tr>
+    <td>${x.name}</td>
+    ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    ${availableAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    ${availableAmount(x) >= sickoAmount ? `<td color="green">` : `<td>`}${availableAmount(x)} / ${sickoAmount}</td>
+    <td>${toSlot(x)}</td>
+    ${singleEquip ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    </tr>`;
+  });
+  equipmentTable += "</table>";
+  printHtml(sanitizeString(equipmentTable), false);
+
+  bufferToFile(
+    `
+      <h1>Crimbo 2025 Report</h1>
+      <div style="display: flex; width: 100vw; flex-wrap: wrap;">
+        <div>
+          <h2>One-offs</h2>
+          ${oneoffTable}
+        </div>
+        <div>
+          <h2>Consumables</h2>
+          ${consumableTable}
+        </div>
+        <div>
+          <h2>Equipment</h2>
+          ${equipmentTable}
+        </div>
+        <div>
+          <h2>Skillbooks</h2>
+          ${skillbookTable}
+        </div>
+        <div>
+          <h2>Tattoo</h2>
+          ${tattooTable}
+        </div>
+      </div>
+    `,
+    "data/bcrimbo.html",
+  );
 }
