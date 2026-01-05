@@ -104,7 +104,6 @@ export default function main(): void {
       const eaten = visitUrl("showconsumption.php").includes(iItem.name);
       if (displayAmount(iItem) >= 1 && eaten) {
         successes = successes.concat(` ${iItem.name}`);
-        // print(`☑️ ${iItem.name}`, `#00FF00`);
       } else {
         print(`~ ${iItem.name}`);
         if (!eaten) {
@@ -120,7 +119,6 @@ export default function main(): void {
       const learned = visitUrl("account_tattoos.php").includes("cryptotat.gif");
       if (displayed && learned) {
         successes = successes.concat(` ${iItem.name}`);
-        // print(`☑️ ${iItem.name}`, `#00FF00`);
       } else if (displayed) {
         print(`~ ${iItem.name}`);
         print(`\t Need to learn ${iItem.name}`);
@@ -134,7 +132,6 @@ export default function main(): void {
       if (have >= desired) {
         if (displayAmount(iItem) >= 1) {
           successes = successes.concat(` ${iItem.name}`);
-          // print(`☑️ ${iItem.name}`, `#00FF00`);
         } else {
           print(`~ ${iItem.name}`);
         }
@@ -148,12 +145,12 @@ export default function main(): void {
   }
   print(successes, `#00FF00`);
   print(`Total ${crymbocurrencyTotal} Crymbocurrency, ${meatTotal} meat`);
-  print(`Possible Crymbocurrency 
-    ${availableAmount($item`Crymbocurrency`) +
+  const availableCrymbocurrency =
+    availableAmount($item`Crymbocurrency`) +
     availableAmount($item`burnt skull`) * 50 +
     availableAmount($item`burnt rib`) * 20 +
     availableAmount($item`burnt radius`) * 10 +
     availableAmount($item`burnt phalange`) * 5 +
-    availableAmount($item`burnt incisor`)
-    }`);
+    availableAmount($item`burnt incisor`);
+  print(`Possible Crymbocurrency ${availableCrymbocurrency}`);
 }
