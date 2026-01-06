@@ -145,10 +145,11 @@ export default function main(): void {
     <th>Have (used)</th>
   </tr>`;
   skillBooks.forEach((x) => {
-    const used =
-      x === $item`Shanty: Only Dogs Love a Drunken Sailor`
-        ? $item`Shanty: Only Dogs Love Drunken Sailors (used)`
-        : $item`${x.name} (used)`;
+    // const used =
+    //   x === $item`Shanty: Only Dogs Love a Drunken Sailor`
+    //     ? $item`Shanty: Only Dogs Love Drunken Sailors (used)`
+    //     : $item`${x.name} (used)`;
+    const used = $item`${x.name} (used)`;
     skillbookTable += `<tr>
     <td>${x.name}</td>
     ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
