@@ -4,6 +4,7 @@ import {
   bufferToFile,
   displayAmount,
   Item,
+  myName,
   print,
   printHtml,
   toSlot,
@@ -245,6 +246,6 @@ export default function main(): void {
         </div>
       </div>
     `,
-    "data/bcrimbo.html",
+    `data/bcrimbo_${myName()}.html`,
   );
 }
