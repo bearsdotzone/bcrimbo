@@ -10,6 +10,17 @@ export function sanitizeString(input: string) {
   return input.replace(/\n/g, "").replace(/ {2}/g, "");
 }
 
+export function colorText(input: string, color = "yellow") {
+  return `<span color=${color}>${input}</span>`;
+}
+
+export function tableHeader(input: string[]) {
+  let output = "<tr><th></th>";
+  input.forEach((i) => (output += `<th>${i}</th>`));
+  output += "</tr>";
+  return output;
+}
+
 export const goodTableData = `<td color="green">☑️`;
 export const badTableData = `<td color="purple">❌`;
 

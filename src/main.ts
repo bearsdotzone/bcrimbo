@@ -24,6 +24,8 @@ import {
   sanitizeString,
   goodTableData,
   badTableData,
+  colorText,
+  tableHeader,
 } from "./lib";
 
 export const args = Args.create(
@@ -55,15 +57,9 @@ export default function main(command?: string): void {
     return myCollection.match(regex) ? 1 : 0;
   }
 
-  printHtml("<span color=yellow>One-offs</span>", false);
+  printHtml(colorText("One-offs"), false);
   let oneoffTable = "<table border=2>";
-  oneoffTable += `
-  <tr>
-    <th></th>
-    <th>Display</th>
-    <th></th>
-    <th>Display</th>
-  </tr>`;
+  oneoffTable += tableHeader(["Display", "", "Display"]);
   const entries: string[] = [];
   oneOffs.forEach((x) => {
     entries.push(
@@ -79,13 +75,9 @@ export default function main(command?: string): void {
   printHtml(sanitizeString(oneoffTable), false);
 
   const consumeHistory = visitUrl("showconsumption.php");
-  printHtml("<span color=yellow>Consumables</span>", false);
+  printHtml(colorText("Consumables"), false);
   let consumableTable = "<table border=2>";
-  consumableTable += `<tr>
-  <th></th>
-  <th>Display</th>
-  <th>Consumed</th>
-  </tr>`;
+  consumableTable += tableHeader(["Display", "Consumed"]);
   consumables.forEach((x) => {
     consumableTable += `<tr>
     <td>${x.name}</td>
@@ -96,15 +88,9 @@ export default function main(command?: string): void {
   consumableTable += "</table>";
   printHtml(sanitizeString(consumableTable), false);
 
-  printHtml("<span color=yellow>Skillbooks</span>", false);
+  printHtml(colorText("Skillbooks"), false);
   let skillbookTable = "<table border=2>";
-  skillbookTable += `
-  <tr>
-    <th></th>
-    <th>Display</th>
-    <th>Display (used)</th>
-    <th>Have (used)</th>
-  </tr>`;
+  skillbookTable += tableHeader(["Display", "Display (used)", "Owned"]);
   skillBooks.forEach((x) => {
     const used = $item`${x.name} (used)`;
     skillbookTable += `<tr>
@@ -118,13 +104,9 @@ export default function main(command?: string): void {
   printHtml(sanitizeString(skillbookTable), false);
 
   const haveTattoo = visitUrl("account_tattoos.php").includes("cryptotat.gif");
-  printHtml("<span color=yellow>Tattoo</span>", false);
+  printHtml(colorText("Tattoo"), false);
   const tattooTable = `<table border=2>
-    <tr>
-      <th></th>
-      <th>Display</th>
-      <th>Learned</th>
-    </tr>
+    ${tableHeader(["Display", "Learned"])}
     <tr>
       <td>${tattoo.name}</td>
       ${displayAmount(tattoo) >= 1 ? goodTableData : badTableData}</td>
@@ -135,13 +117,9 @@ export default function main(command?: string): void {
 
   const familiarSeed = $item`assembled tiny plastic Santa skeleton`;
   const familiar = $familiar`Tiny Plastic Santa Claus Skeleton`;
-  printHtml("<span color=yellow>Familiar</span>", false);
+  printHtml(colorText("Familiar"), false);
   const familiarTable = `<table border=2>
-    <tr>
-      <th></th>
-      <th>Display</th>
-      <th>Grown</th>
-    </tr>
+    ${tableHeader(["Display", "Grown"])}
     <tr>
       <td>Tiny Plastic Santa Claus Skeleton</td>
       ${displayAmount(familiarSeed) >= 1 ? goodTableData : badTableData}</td>
@@ -151,16 +129,9 @@ export default function main(command?: string): void {
   printHtml(sanitizeString(familiarTable), false);
 
   const singleEquipItems = $items`burnt bone belt, hot boning knife, smoldering vertebra`;
-  printHtml("<span color=yellow>Equipment</span>", false);
+  printHtml(colorText("Equipment"), false);
   let equipmentTable = "<table border=2>";
-  equipmentTable += `<tr>
-  <th></th>
-  <th>Display</th>
-  <th>Personal</th>
-  <th>Sicko</th>
-  <th>Slot</th>
-  <th>Single Equip</th>
-  </tr>`;
+  equipmentTable += tableHeader(["Display", "Owned", "Usable", "Slot", "Single Equip"]);
   equippable.forEach((x) => {
     let sickoAmount = 1;
     switch (toSlot(x)) {
@@ -210,7 +181,7 @@ export default function main(command?: string): void {
   }
 
   if (args.html) {
-    printHtml(`<span color=yellow>Writing results to data/bcrimbo_${myName()}.html</span>`, false);
+    printHtml(colorText(`Writing results to data/bcrimbo_${myName()}.html`), false);
     bufferToFile(
       `
       <h1>Crimbo 2025 Report</h1>${wonCrimbo ? "You won crimbo! Good job!" : ""}
