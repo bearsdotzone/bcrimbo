@@ -4939,12 +4939,17 @@ function main(command) {
     Args.showHelp(args);
     return;
   }
+  var myCollection = (0, import_kolmafia12.visitUrl)("displaycollection.php?who=".concat((0, import_kolmafia12.myId)()));
+  function displayAmount2(item) {
+    var sanitizedName = item.name.replace("(", "\\(").replace(")", "\\)").replace("?", "\\?"), regex = new RegExp("".concat(sanitizedName, "( \\([\\d,]+\\))?<\\/b>"));
+    return myCollection.match(regex) ? 1 : 0;
+  }
   (0, import_kolmafia12.print)("One-offs", "#FFFF00");
   var oneoffTable = "<table border=2>";
   oneoffTable += "\n  <tr>\n    <th></th>\n    <th>Display</th>\n    <th></th>\n    <th>Display</th>\n  </tr>";
   var entries = [];
   oneOffs.forEach(function(x) {
-    entries.push("<td>".concat(x.name, "</td>\n      ").concat((0, import_kolmafia12.displayAmount)(x) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>"));
+    entries.push("<td>".concat(x.name, "</td>\n      ").concat(displayAmount2(x) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>"));
   });
   for (var rows = Math.ceil(entries.length / 2), i = 0; i < rows; i++)
     oneoffTable += "<tr>".concat(entries[i]).concat(i + rows < entries.length ? entries[i + rows] : "", "</tr>");
@@ -4953,20 +4958,20 @@ function main(command) {
   (0, import_kolmafia12.print)("Consumables", "#FFFF00");
   var consumableTable = "<table border=2>";
   consumableTable += "<tr>\n  <th></th>\n  <th>Display</th>\n  <th>Consumed</th>\n  </tr>", consumables.forEach(function(x) {
-    consumableTable += "<tr>\n    <td>".concat(x.name, "</td>\n    ").concat((0, import_kolmafia12.displayAmount)(x) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    ").concat(consumeHistory.includes(x.name) ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    </tr>");
+    consumableTable += "<tr>\n    <td>".concat(x.name, "</td>\n    ").concat(displayAmount2(x) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    ").concat(consumeHistory.includes(x.name) ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    </tr>");
   }), consumableTable += "</table>", (0, import_kolmafia12.printHtml)(sanitizeString(consumableTable), !1), (0, import_kolmafia12.print)("Skillbooks", "#FFFF00");
   var skillbookTable = "<table border=2>";
   skillbookTable += "\n  <tr>\n    <th></th>\n    <th>Display</th>\n    <th>Display (used)</th>\n    <th>Have (used)</th>\n  </tr>", skillBooks.forEach(function(x) {
     var used = $item(_templateObject85 || (_templateObject85 = _taggedTemplateLiteral6(["", " (used)"])), x.name);
-    skillbookTable += "<tr>\n    <td>".concat(x.name, "</td>\n    ").concat((0, import_kolmafia12.displayAmount)(x) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    ").concat((0, import_kolmafia12.displayAmount)(used) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    ").concat((0, import_kolmafia12.availableAmount)(used) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    </tr>");
+    skillbookTable += "<tr>\n    <td>".concat(x.name, "</td>\n    ").concat(displayAmount2(x) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    ").concat(displayAmount2(used) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    ").concat((0, import_kolmafia12.availableAmount)(used) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    </tr>");
   }), skillbookTable += "</table>", (0, import_kolmafia12.printHtml)(sanitizeString(skillbookTable), !1);
   var haveTattoo = (0, import_kolmafia12.visitUrl)("account_tattoos.php").includes("cryptotat.gif");
   (0, import_kolmafia12.print)("Tattoo", "#FFFF00");
-  var tattooTable = "<table border=2>\n    <tr>\n      <th></th>\n      <th>Display</th>\n      <th>Learned</th>\n    </tr>\n    <tr>\n      <td>".concat(tattoo.name, "</td>\n      ").concat((0, import_kolmafia12.displayAmount)(tattoo) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n      ").concat(haveTattoo ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    </tr>\n  </table>");
+  var tattooTable = "<table border=2>\n    <tr>\n      <th></th>\n      <th>Display</th>\n      <th>Learned</th>\n    </tr>\n    <tr>\n      <td>".concat(tattoo.name, "</td>\n      ").concat(displayAmount2(tattoo) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n      ").concat(haveTattoo ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    </tr>\n  </table>");
   (0, import_kolmafia12.printHtml)(sanitizeString(tattooTable), !1);
   var familiarSeed = $item(_templateObject216 || (_templateObject216 = _taggedTemplateLiteral6(["assembled tiny plastic Santa skeleton"]))), familiar = $familiar(_templateObject315 || (_templateObject315 = _taggedTemplateLiteral6(["Tiny Plastic Santa Claus Skeleton"])));
   (0, import_kolmafia12.print)("Familiar", "#FFFF00");
-  var familiarTable = "<table border=2>\n    <tr>\n      <th></th>\n      <th>Display</th>\n      <th>Grown</th>\n    </tr>\n    <tr>\n      <td>Tiny Plastic Santa Claus Skeleton</td>\n      ".concat((0, import_kolmafia12.displayAmount)(familiarSeed) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n      ").concat((0, import_kolmafia12.haveFamiliar)(familiar) ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    </tr>\n  </table>");
+  var familiarTable = "<table border=2>\n    <tr>\n      <th></th>\n      <th>Display</th>\n      <th>Grown</th>\n    </tr>\n    <tr>\n      <td>Tiny Plastic Santa Claus Skeleton</td>\n      ".concat(displayAmount2(familiarSeed) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n      ").concat((0, import_kolmafia12.haveFamiliar)(familiar) ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    </tr>\n  </table>");
   (0, import_kolmafia12.printHtml)(sanitizeString(familiarTable), !1);
   var singleEquipItems = $items(_templateObject414 || (_templateObject414 = _taggedTemplateLiteral6(["burnt bone belt, hot boning knife, smoldering vertebra"])));
   (0, import_kolmafia12.print)("Equipment", "#FFFF00");
@@ -4986,13 +4991,13 @@ function main(command) {
         sickoAmount = 1;
     }
     var singleEquip = singleEquipItems.includes(x);
-    singleEquip && (sickoAmount = 1), equipmentTable += "<tr>\n    <td>".concat(x.name, "</td>\n    ").concat((0, import_kolmafia12.displayAmount)(x) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    ").concat((0, import_kolmafia12.availableAmount)(x) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    ").concat((0, import_kolmafia12.availableAmount)(x) >= sickoAmount ? '<td color="green">' : "<td>").concat((0, import_kolmafia12.availableAmount)(x), " / ").concat(sickoAmount, "</td>\n    <td>").concat((0, import_kolmafia12.toSlot)(x), "</td>\n    ").concat(singleEquip ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    </tr>");
+    singleEquip && (sickoAmount = 1), equipmentTable += "<tr>\n    <td>".concat(x.name, "</td>\n    ").concat(displayAmount2(x) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    ").concat((0, import_kolmafia12.availableAmount)(x) >= 1 ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    ").concat((0, import_kolmafia12.availableAmount)(x) >= sickoAmount ? '<td color="green">' : "<td>").concat((0, import_kolmafia12.availableAmount)(x), " / ").concat(sickoAmount, "</td>\n    <td>").concat((0, import_kolmafia12.toSlot)(x), "</td>\n    ").concat(singleEquip ? '<td color="green">\u2611\uFE0F' : '<td color="purple">\u274C', "</td>\n    </tr>");
   }), equipmentTable += "</table>", (0, import_kolmafia12.printHtml)(sanitizeString(equipmentTable), !1);
   var wonCrimbo = allDisplayed(equippable) && allDisplayed(oneOffs) && allDisplayed(skillBooks) && allDisplayed(skillBooks.map(function(i2) {
     return (0, import_kolmafia12.toItem)("".concat(i2.name, " (used)"));
   })) && allDisplayed(consumables) && consumables.every(function(i2) {
     return consumeHistory.includes(i2.name);
-  }) && (0, import_kolmafia12.displayAmount)(tattoo) >= 1 && haveTattoo && (0, import_kolmafia12.displayAmount)(familiarSeed) >= 1 && (0, import_kolmafia12.haveFamiliar)(familiar);
+  }) && displayAmount2(tattoo) >= 1 && haveTattoo && displayAmount2(familiarSeed) >= 1 && (0, import_kolmafia12.haveFamiliar)(familiar);
   wonCrimbo && (0, import_kolmafia12.printHtml)("You won crimbo! Good job!"), args.html && ((0, import_kolmafia12.print)("Writing results to data/bcrimbo_".concat((0, import_kolmafia12.myName)(), ".html"), "#FFFF00"), (0, import_kolmafia12.bufferToFile)("\n      <h1>Crimbo 2025 Report</h1>".concat(wonCrimbo ? "You won crimbo! Good job!" : "", '\n      <div style="display: flex; width: 100vw; flex-wrap: wrap;">\n        <div>\n          <h2>One-offs</h2>\n          ').concat(oneoffTable, "\n        </div>\n        <div>\n          <h2>Consumables</h2>\n          ").concat(consumableTable, "\n        </div>\n        <div>\n          <h2>Equipment</h2>\n          ").concat(equipmentTable, "\n        </div>\n        <div>\n          <h2>Skillbooks</h2>\n          ").concat(skillbookTable, "\n        </div>\n        <div>\n          <h2>Tattoo</h2>\n          ").concat(tattooTable, "\n        </div>\n        <div>\n          <h2>Familiar</h2>\n          ").concat(familiarTable, "\n        </div>\n      </div>\n    "), "data/bcrimbo_".concat((0, import_kolmafia12.myName)(), ".html")));
 }
 // Annotate the CommonJS export names for ESM import in node:
