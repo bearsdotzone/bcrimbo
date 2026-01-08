@@ -1859,6 +1859,7 @@ __metadata:
     esbuild-plugin-babel: "npm:^0.2.3"
     eslint: "npm:^9.17.0"
     eslint-plugin-libram: "npm:^0.4.21"
+    grimoire-kolmafia: "npm:^0.3.33"
     kolmafia: "npm:latest"
     libram: "npm:^0.11.14"
     prettier: "npm:^3.4.2"
@@ -2032,6 +2033,13 @@ __metadata:
   dependencies:
     browserslist: "npm:^4.28.0"
   checksum: 10c0/71da415899633120db7638dd7b250eee56031f63c4560dcba8eeeafd1168fae171d59b223e3fd2e0aa543a490d64bac7d946764721e2c05897056fdfb22cce33
+  languageName: node
+  linkType: hard
+
+"core-js@npm:^3.16.4":
+  version: 3.47.0
+  resolution: "core-js@npm:3.47.0"
+  checksum: 10c0/9b1a7088b7c660c7b8f1d4c90bb1816a8d5352ebdcb7bc742e3a0e4eb803316b5aa17bacb8769522342196351a5430178f46914644f2bfdb94ce0ced3c7fd523
   languageName: node
   linkType: hard
 
@@ -2535,6 +2543,18 @@ __metadata:
   version: 14.0.0
   resolution: "globals@npm:14.0.0"
   checksum: 10c0/b96ff42620c9231ad468d4c58ff42afee7777ee1c963013ff8aabe095a451d0ceeb8dcd8ef4cbd64d2538cef45f787a78ba3a9574f4a634438963e334471302d
+  languageName: node
+  linkType: hard
+
+"grimoire-kolmafia@npm:^0.3.33":
+  version: 0.3.33
+  resolution: "grimoire-kolmafia@npm:0.3.33"
+  dependencies:
+    core-js: "npm:^3.16.4"
+  peerDependencies:
+    kolmafia: ^5.28100.0
+    libram: ^0.10.0
+  checksum: 10c0/a29c53875e6aaa397567857818366237fd80f28e08f0cfc86cd5358de3b7c1e1cdd55d860ec522ce794a39d211eea960e78be781690d190846f0bbf9424490c1
   languageName: node
   linkType: hard
 

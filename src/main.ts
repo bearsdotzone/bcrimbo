@@ -1,8 +1,10 @@
 /* eslint-disable libram/verify-constants */
+import { Args } from "grimoire-kolmafia";
 import {
   availableAmount,
   bufferToFile,
   displayAmount,
+  haveFamiliar,
   Item,
   myName,
   print,
@@ -11,13 +13,31 @@ import {
   visitUrl,
   weaponHands,
 } from "kolmafia";
-import { $item, $slot } from "libram";
+import { $familiar, $item, $slot } from "libram";
 
 function sanitizeString(input: string) {
   return input.replace(/\n/g, "").replace(/ {2}/g, "");
 }
 
-export default function main(): void {
+export const args = Args.create(
+  "bcrimbo",
+  `The metric for determining if you've had the maximum amount of fun this crimbo:\nOne of every item in your display case\nEvery food and drink consumed\nTattoo learned\nFamiliar owned`,
+  {
+    html: Args.boolean({
+      default: false,
+      key: "html",
+      help: `Generate an html version of the report at data/bcrimbo_YOURNAMEHERE.html`,
+    }),
+  },
+);
+
+export default function main(command?: string): void {
+  Args.fill(args, command);
+  if (args.help) {
+    Args.showHelp(args);
+    return;
+  }
+
   const equippable: Item[] = [
     $item`bone-polishing rag`,
     $item`burnt bone belt`,
@@ -36,7 +56,6 @@ export default function main(): void {
   ];
 
   const oneOffs: Item[] = [
-    $item`assembled tiny plastic Santa skeleton`,
     $item`baked bone meal`,
     $item`boiling bone marrow`,
     $item`boiling cerebrospinal fluid`,
@@ -176,6 +195,23 @@ export default function main(): void {
   </table>`;
   printHtml(sanitizeString(tattooTable), false);
 
+  const familiarSeed = $item`assembled tiny plastic Santa skeleton`;
+  const familiar = $familiar`Tiny Plastic Santa Claus Skeleton`;
+  print("Familiar", "#FFFF00");
+  const familiarTable = `<table border=2>
+    <tr>
+      <th></th>
+      <th>Display</th>
+      <th>Grown</th>
+    </tr>
+    <tr>
+      <td>Tiny Plastic Santa Claus Skeleton</td>
+      ${displayAmount(familiarSeed) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+      ${haveFamiliar(familiar) ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    </tr>
+  </table>`;
+  printHtml(sanitizeString(familiarTable), false);
+
   print("Equipment", "#FFFF00");
   let equipmentTable = "<table border=2>";
   equipmentTable += `<tr>
@@ -243,6 +279,10 @@ export default function main(): void {
         <div>
           <h2>Tattoo</h2>
           ${tattooTable}
+        </div>
+        <div>
+          <h2>Familiar</h2>
+          ${familiarTable}
         </div>
       </div>
     `,
