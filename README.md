@@ -6,10 +6,13 @@ Maximum fun is defined as:
 - Having at least one of every item in your display case
 - Having consumed at least one of every food and drink
 - Having unlocked the tattoo and the familiar
+- Having hardcore permed every skill
 
 Installation: `git checkout bearsdotzone/bcrimbo release`
 
 Usage: `bcrimbo help`
+
+*NB: "Maximum fun" is satire, the real Crimbo fun is the friends we made along the way.* 😃
 
 <!--
 # Development

@@ -13,7 +13,7 @@ import {
   visitUrl,
   weaponHands,
 } from "kolmafia";
-import { $familiar, $item, $items, $slot } from "libram";
+import { $familiar, $item, $items, $slot, Lifestyle, permedSkills } from "libram";
 import {
   oneOffs,
   equippable,
@@ -34,7 +34,10 @@ export const args = Args.create(
   Maximum fun is defined as:
   - Having at least one of every item in your display case
   - Having consumed at least one of every food and drink
-  - Having unlocked the tattoo and the familiar`,
+  - Having unlocked the tattoo and the familiar
+  - Having hardcore permed every skill
+  
+  <em>NB: "Maximum fun" is satire, the real Crimbo fun is the friends we made along the way.</em>😃`,
   {
     html: Args.flag({
       default: false,
@@ -59,12 +62,13 @@ export default function main(command?: string): void {
 
   printHtml(colorText("One-offs"), false);
   let oneoffTable = "<table border=2>";
-  oneoffTable += tableHeader(["Display", "", "Display"]);
+  oneoffTable += tableHeader(["Display", "Own", "", "Display", "Own"]);
   const entries: string[] = [];
   oneOffs.forEach((x) => {
     entries.push(
       `<td>${x.name}</td>
-      ${displayAmount(x) >= 1 ? goodTableData : badTableData}</td>`,
+      ${displayAmount(x) >= 1 ? goodTableData : badTableData}</td>
+      ${availableAmount(x) >= 1 ? goodTableData : badTableData}</td>`,
     );
   });
   const rows = Math.ceil(entries.length / 2.0);
@@ -77,11 +81,12 @@ export default function main(command?: string): void {
   const consumeHistory = visitUrl("showconsumption.php");
   printHtml(colorText("Consumables"), false);
   let consumableTable = "<table border=2>";
-  consumableTable += tableHeader(["Display", "Consumed"]);
+  consumableTable += tableHeader(["Display", "Own", "Consumed"]);
   consumables.forEach((x) => {
     consumableTable += `<tr>
     <td>${x.name}</td>
     ${displayAmount(x) >= 1 ? goodTableData : badTableData}</td>
+    ${availableAmount(x) >= 1 ? goodTableData : badTableData}</td>
     ${consumeHistory.includes(x.name) ? goodTableData : badTableData}</td>
     </tr>`;
   });
@@ -90,14 +95,17 @@ export default function main(command?: string): void {
 
   printHtml(colorText("Skillbooks"), false);
   let skillbookTable = "<table border=2>";
-  skillbookTable += tableHeader(["Display", "Display (used)", "Owned"]);
+  skillbookTable += tableHeader(["Display", "Own", "Display (used)", "Own (used)", "SC", "HC"]);
   skillBooks.forEach((x) => {
     const used = $item`${x.name} (used)`;
     skillbookTable += `<tr>
     <td>${x.name}</td>
     ${displayAmount(x) >= 1 ? goodTableData : badTableData}</td>
+    ${availableAmount(x) >= 1 ? goodTableData : badTableData}</td>
     ${displayAmount(used) >= 1 ? goodTableData : badTableData}</td>
     ${availableAmount(used) >= 1 ? goodTableData : badTableData}</td>
+    ${permedSkills().has(x.skill) && permedSkills().get(x.skill) === Lifestyle.softcore ? goodTableData : badTableData}</td>
+    ${permedSkills().has(x.skill) && permedSkills().get(x.skill) === Lifestyle.hardcore ? goodTableData : badTableData}</td>
     </tr>`;
   });
   skillbookTable += "</table>";
@@ -106,10 +114,11 @@ export default function main(command?: string): void {
   const haveTattoo = visitUrl("account_tattoos.php").includes("cryptotat.gif");
   printHtml(colorText("Tattoo"), false);
   const tattooTable = `<table border=2>
-    ${tableHeader(["Display", "Learned"])}
+    ${tableHeader(["Display", "Own", "Unlocked"])}
     <tr>
       <td>${tattoo.name}</td>
       ${displayAmount(tattoo) >= 1 ? goodTableData : badTableData}</td>
+      ${availableAmount(tattoo) >= 1 ? goodTableData : badTableData}</td>
       ${haveTattoo ? goodTableData : badTableData}</td>
     </tr>
   </table>`;
@@ -119,10 +128,11 @@ export default function main(command?: string): void {
   const familiar = $familiar`Tiny Plastic Santa Claus Skeleton`;
   printHtml(colorText("Familiar"), false);
   const familiarTable = `<table border=2>
-    ${tableHeader(["Display", "Grown"])}
+    ${tableHeader(["Display", "Own", "Grown"])}
     <tr>
       <td>Tiny Plastic Santa Claus Skeleton</td>
       ${displayAmount(familiarSeed) >= 1 ? goodTableData : badTableData}</td>
+      ${availableAmount(familiarSeed) >= 1 ? goodTableData : badTableData}</td>
       ${haveFamiliar(familiar) ? goodTableData : badTableData}</td>
     </tr>
   </table>`;
@@ -131,7 +141,7 @@ export default function main(command?: string): void {
   const singleEquipItems = $items`burnt bone belt, hot boning knife, smoldering vertebra`;
   printHtml(colorText("Equipment"), false);
   let equipmentTable = "<table border=2>";
-  equipmentTable += tableHeader(["Display", "Owned", "Usable", "Slot", "Single Equip"]);
+  equipmentTable += tableHeader(["Display", "Own", "Usable", "Slot", "Single Equip"]);
   equippable.forEach((x) => {
     let sickoAmount = 1;
     switch (toSlot(x)) {
@@ -174,7 +184,10 @@ export default function main(command?: string): void {
     displayAmount(tattoo) >= 1 &&
     haveTattoo &&
     displayAmount(familiarSeed) >= 1 &&
-    haveFamiliar(familiar);
+    haveFamiliar(familiar) &&
+    skillBooks.every(
+      (i) => permedSkills().has(i.skill) && permedSkills().get(i.skill) === Lifestyle.hardcore,
+    );
 
   if (wonCrimbo) {
     printHtml("You won crimbo! Good job!");
@@ -184,27 +197,27 @@ export default function main(command?: string): void {
     printHtml(colorText(`Writing results to data/bcrimbo_${myName()}.html`), false);
     bufferToFile(
       `
-      <h1>Crimbo 2025 Report</h1>${wonCrimbo ? "You won crimbo! Good job!" : ""}
+      <h1>Crimbo 2025 Report - ${myName()}</h1>${wonCrimbo ? "You won crimbo! Good job!" : ""}
       <div style="display: flex; width: 100vw; flex-wrap: wrap;">
         <div>
           <h2>One-offs</h2>
           ${oneoffTable}
         </div>
         <div>
+        <h2>Equipment</h2>
+        ${equipmentTable}
+        </div>
+        <div>
+        <h2>Tattoo</h2>
+        ${tattooTable}
+        </div>
+        <div>
           <h2>Consumables</h2>
           ${consumableTable}
         </div>
         <div>
-          <h2>Equipment</h2>
-          ${equipmentTable}
-        </div>
-        <div>
           <h2>Skillbooks</h2>
           ${skillbookTable}
-        </div>
-        <div>
-          <h2>Tattoo</h2>
-          ${tattooTable}
         </div>
         <div>
           <h2>Familiar</h2>
