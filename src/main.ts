@@ -151,7 +151,7 @@ export default function main(command?: string): void {
   printHtml(sanitizeString(familiarTable), false);
 
   const singleEquipItems = $items`burnt bone belt, hot boning knife, smoldering vertebra`;
-  printHtml("<span color=yellow>Equipment</spand>", false);
+  printHtml("<span color=yellow>Equipment</span>", false);
   let equipmentTable = "<table border=2>";
   equipmentTable += `<tr>
   <th></th>
