@@ -3,8 +3,9 @@ import { Args } from "grimoire-kolmafia";
 import {
   availableAmount,
   bufferToFile,
-  displayAmount,
   haveFamiliar,
+  Item,
+  myId,
   myName,
   print,
   printHtml,
@@ -43,6 +44,13 @@ export default function main(command?: string): void {
   if (args.help) {
     Args.showHelp(args);
     return;
+  }
+
+  const myCollection = visitUrl(`displaycollection.php?who=${myId()}`);
+  function displayAmount(item: Item) {
+    const sanitizedName = item.name.replace("(", "\\(").replace(")", "\\)").replace("?", "\\?");
+    const regex = new RegExp(`${sanitizedName}( \\([\\d,]+\\))?<\\/b>`);
+    return myCollection.match(regex) ? 1 : 0;
   }
 
   print("One-offs", "#FFFF00");
