@@ -7,7 +7,6 @@ import {
   Item,
   myId,
   myName,
-  print,
   printHtml,
   toItem,
   toSlot,
@@ -23,6 +22,8 @@ import {
   tattoo,
   allDisplayed,
   sanitizeString,
+  goodTableData,
+  badTableData,
 } from "./lib";
 
 export const args = Args.create(
@@ -34,6 +35,7 @@ export const args = Args.create(
   - Having unlocked the tattoo and the familiar`,
   {
     html: Args.flag({
+      default: false,
       help: `Generate an html version of the report at data/bcrimbo_${myName()}.html`,
     }),
   },
@@ -53,7 +55,7 @@ export default function main(command?: string): void {
     return myCollection.match(regex) ? 1 : 0;
   }
 
-  print("One-offs", "#FFFF00");
+  printHtml("<span color=yellow>One-offs</span>", false);
   let oneoffTable = "<table border=2>";
   oneoffTable += `
   <tr>
@@ -66,7 +68,7 @@ export default function main(command?: string): void {
   oneOffs.forEach((x) => {
     entries.push(
       `<td>${x.name}</td>
-      ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>`,
+      ${displayAmount(x) >= 1 ? goodTableData : badTableData}</td>`,
     );
   });
   const rows = Math.ceil(entries.length / 2.0);
@@ -77,7 +79,7 @@ export default function main(command?: string): void {
   printHtml(sanitizeString(oneoffTable), false);
 
   const consumeHistory = visitUrl("showconsumption.php");
-  print("Consumables", "#FFFF00");
+  printHtml("<span color=yellow>Consumables</span>", false);
   let consumableTable = "<table border=2>";
   consumableTable += `<tr>
   <th></th>
@@ -87,14 +89,14 @@ export default function main(command?: string): void {
   consumables.forEach((x) => {
     consumableTable += `<tr>
     <td>${x.name}</td>
-    ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
-    ${consumeHistory.includes(x.name) ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
+    ${displayAmount(x) >= 1 ? goodTableData : badTableData}</td>
+    ${consumeHistory.includes(x.name) ? goodTableData : badTableData}</td>
     </tr>`;
   });
   consumableTable += "</table>";
   printHtml(sanitizeString(consumableTable), false);
 
-  print("Skillbooks", "#FFFF00");
+  printHtml("<span color=yellow>Skillbooks</span>", false);
   let skillbookTable = "<table border=2>";
   skillbookTable += `
   <tr>
@@ -107,16 +109,16 @@ export default function main(command?: string): void {
     const used = $item`${x.name} (used)`;
     skillbookTable += `<tr>
     <td>${x.name}</td>
-    ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
-    ${displayAmount(used) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
-    ${availableAmount(used) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
+    ${displayAmount(x) >= 1 ? goodTableData : badTableData}</td>
+    ${displayAmount(used) >= 1 ? goodTableData : badTableData}</td>
+    ${availableAmount(used) >= 1 ? goodTableData : badTableData}</td>
     </tr>`;
   });
   skillbookTable += "</table>";
   printHtml(sanitizeString(skillbookTable), false);
 
   const haveTattoo = visitUrl("account_tattoos.php").includes("cryptotat.gif");
-  print("Tattoo", "#FFFF00");
+  printHtml("<span color=yellow>Tattoo</span>", false);
   const tattooTable = `<table border=2>
     <tr>
       <th></th>
@@ -125,15 +127,15 @@ export default function main(command?: string): void {
     </tr>
     <tr>
       <td>${tattoo.name}</td>
-      ${displayAmount(tattoo) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
-      ${haveTattoo ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
+      ${displayAmount(tattoo) >= 1 ? goodTableData : badTableData}</td>
+      ${haveTattoo ? goodTableData : badTableData}</td>
     </tr>
   </table>`;
   printHtml(sanitizeString(tattooTable), false);
 
   const familiarSeed = $item`assembled tiny plastic Santa skeleton`;
   const familiar = $familiar`Tiny Plastic Santa Claus Skeleton`;
-  print("Familiar", "#FFFF00");
+  printHtml("<span color=yellow>Familiar</span>", false);
   const familiarTable = `<table border=2>
     <tr>
       <th></th>
@@ -142,14 +144,14 @@ export default function main(command?: string): void {
     </tr>
     <tr>
       <td>Tiny Plastic Santa Claus Skeleton</td>
-      ${displayAmount(familiarSeed) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
-      ${haveFamiliar(familiar) ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
+      ${displayAmount(familiarSeed) >= 1 ? goodTableData : badTableData}</td>
+      ${haveFamiliar(familiar) ? goodTableData : badTableData}</td>
     </tr>
   </table>`;
   printHtml(sanitizeString(familiarTable), false);
 
   const singleEquipItems = $items`burnt bone belt, hot boning knife, smoldering vertebra`;
-  print("Equipment", "#FFFF00");
+  printHtml("<span color=yellow>Equipment</spand>", false);
   let equipmentTable = "<table border=2>";
   equipmentTable += `<tr>
   <th></th>
@@ -181,11 +183,11 @@ export default function main(command?: string): void {
 
     equipmentTable += `<tr>
     <td>${x.name}</td>
-    ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
-    ${availableAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
+    ${displayAmount(x) >= 1 ? goodTableData : badTableData}</td>
+    ${availableAmount(x) >= 1 ? goodTableData : badTableData}</td>
     ${availableAmount(x) >= sickoAmount ? `<td color="green">` : `<td>`}${availableAmount(x)} / ${sickoAmount}</td>
     <td>${toSlot(x)}</td>
-    ${singleEquip ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
+    ${singleEquip ? goodTableData : badTableData}</td>
     </tr>`;
   });
   equipmentTable += "</table>";
@@ -208,7 +210,7 @@ export default function main(command?: string): void {
   }
 
   if (args.html) {
-    print(`Writing results to data/bcrimbo_${myName()}.html`, "#FFFF00");
+    printHtml(`<span color=yellow>Writing results to data/bcrimbo_${myName()}.html</span>`, false);
     bufferToFile(
       `
       <h1>Crimbo 2025 Report</h1>${wonCrimbo ? "You won crimbo! Good job!" : ""}

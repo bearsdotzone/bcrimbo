@@ -10,6 +10,9 @@ export function sanitizeString(input: string) {
   return input.replace(/\n/g, "").replace(/ {2}/g, "");
 }
 
+export const goodTableData = `<td color="green">☑️`;
+export const badTableData = `<td color="purple">❌`;
+
 export const equippable: Item[] = [
   $item`bone-polishing rag`,
   $item`burnt bone belt`,

@@ -9,7 +9,7 @@ Maximum fun is defined as:
 
 Installation: `git checkout bearsdotzone/bcrimbo release`
 
-Usage: `bcrimbo`
+Usage: `bcrimbo help`
 
 <!--
 # Development
