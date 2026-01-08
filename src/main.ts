@@ -5,28 +5,35 @@ import {
   bufferToFile,
   displayAmount,
   haveFamiliar,
-  Item,
   myName,
   print,
   printHtml,
+  toItem,
   toSlot,
   visitUrl,
   weaponHands,
 } from "kolmafia";
-import { $familiar, $item, $slot } from "libram";
-
-function sanitizeString(input: string) {
-  return input.replace(/\n/g, "").replace(/ {2}/g, "");
-}
+import { $familiar, $item, $items, $slot } from "libram";
+import {
+  oneOffs,
+  equippable,
+  skillBooks,
+  consumables,
+  tattoo,
+  allDisplayed,
+  sanitizeString,
+} from "./lib";
 
 export const args = Args.create(
   "bcrimbo",
-  `The metric for determining if you've had the maximum amount of fun this crimbo:\nOne of every item in your display case\nEvery food and drink consumed\nTattoo learned\nFamiliar owned`,
+  `A tool for checking whether you've had the maximum amount of fun this Crimbo 2025.
+  Maximum fun is defined as:
+  - Having at least one of every item in your display case
+  - Having consumed at least one of every food and drink
+  - Having unlocked the tattoo and the familiar`,
   {
-    html: Args.boolean({
-      default: false,
-      key: "html",
-      help: `Generate an html version of the report at data/bcrimbo_YOURNAMEHERE.html`,
+    html: Args.flag({
+      help: `Generate an html version of the report at data/bcrimbo_${myName()}.html`,
     }),
   },
 );
@@ -37,82 +44,6 @@ export default function main(command?: string): void {
     Args.showHelp(args);
     return;
   }
-
-  const equippable: Item[] = [
-    $item`bone-polishing rag`,
-    $item`burnt bone belt`,
-    $item`cursed ship's lantern`,
-    $item`extra-thick Crimbo sweater`,
-    $item`fireproof bonesaw`,
-    $item`flaming fistbone`,
-    $item`heat-resistant harpoon pistol`,
-    $item`hot boning knife`,
-    $item`scorched skeleton mask`,
-    $item`scorched skeleton pants`,
-    $item`scorched skeleton shirt`,
-    $item`smoldering vertebra`,
-    $item`undertakers' forceps`,
-    $item`vermiculite shield`,
-  ];
-
-  const oneOffs: Item[] = [
-    $item`baked bone meal`,
-    $item`boiling bone marrow`,
-    $item`boiling cerebrospinal fluid`,
-    $item`boiling synovial fluid`,
-    $item`burnt incisor`,
-    $item`burnt phalange`,
-    $item`burnt radius`,
-    $item`burnt rib`,
-    $item`burnt skull`,
-    $item`buryable chest`,
-    $item`cinnamon doubloon`,
-    $item`counterskeleton elixir`,
-    $item`crate of prize-winning cheese`,
-    $item`crate of prize-winning rum`,
-    $item`Crymbocurrency`,
-    $item`glimmering golden crystal`,
-    $item`gummi fingerbone`,
-    $item`messenger parrot egg`,
-    $item`miniature sleigh`,
-    $item`Santa-Slayer medal`,
-    $item`scorched skull trophy`,
-    $item`Skull of Claus`,
-    $item`smoldering bone dust`,
-    $item`tiny plastic left skeleton arm`,
-    $item`tiny plastic left skeleton leg`,
-    $item`tiny plastic right skeleton arm`,
-    $item`tiny plastic right skeleton leg`,
-    $item`tiny plastic skeleton Crimbo hat`,
-    $item`tiny plastic skeleton pelvis`,
-    $item`tiny plastic skeleton rib cage`,
-    $item`tiny plastic skeleton skull`,
-    $item`volatile bone bomb`,
-  ];
-
-  const skillBooks: Item[] = [
-    $item`Shanty: I'm Smarter Than a Drunken Sailor`,
-    $item`Shanty: Let's Beat Up This Drunken Sailor`,
-    $item`Shanty: Look At That Drunken Sailor Dance`,
-    $item`Shanty: Only Dogs Love a Drunken Sailor`,
-    $item`Shanty: Who's Going to Pay This Drunken Sailor?`,
-    $item`The Encyclopedia of Holiday Funerary Rites`,
-  ];
-
-  const consumables: Item[] = [
-    $item`bottle of prize-winning rum`,
-    $item`mulled butter rum`,
-    $item`"salvaged" wine`,
-    $item`Scotch and eggnog`,
-    $item`Steve Abrams' Holiday Sampler Beer`,
-    $item`traditional gingerloaf`,
-    $item`treasure chestnut`,
-    $item`weak skeleton venom`,
-    $item`wedge of prize-winning cheese`,
-    $item`wing bone`,
-  ];
-
-  const tattoo = $item`Crymbocurrency tattoo`;
 
   print("One-offs", "#FFFF00");
   let oneoffTable = "<table border=2>";
@@ -127,7 +58,7 @@ export default function main(command?: string): void {
   oneOffs.forEach((x) => {
     entries.push(
       `<td>${x.name}</td>
-      ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>`,
+      ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>`,
     );
   });
   const rows = Math.ceil(entries.length / 2.0);
@@ -148,8 +79,8 @@ export default function main(command?: string): void {
   consumables.forEach((x) => {
     consumableTable += `<tr>
     <td>${x.name}</td>
-    ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
-    ${consumeHistory.includes(x.name) ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
+    ${consumeHistory.includes(x.name) ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
     </tr>`;
   });
   consumableTable += "</table>";
@@ -165,21 +96,18 @@ export default function main(command?: string): void {
     <th>Have (used)</th>
   </tr>`;
   skillBooks.forEach((x) => {
-    // const used =
-    //   x === $item`Shanty: Only Dogs Love a Drunken Sailor`
-    //     ? $item`Shanty: Only Dogs Love Drunken Sailors (used)`
-    //     : $item`${x.name} (used)`;
     const used = $item`${x.name} (used)`;
     skillbookTable += `<tr>
     <td>${x.name}</td>
-    ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
-    ${displayAmount(used) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
-    ${availableAmount(used) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
+    ${displayAmount(used) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
+    ${availableAmount(used) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
     </tr>`;
   });
   skillbookTable += "</table>";
   printHtml(sanitizeString(skillbookTable), false);
 
+  const haveTattoo = visitUrl("account_tattoos.php").includes("cryptotat.gif");
   print("Tattoo", "#FFFF00");
   const tattooTable = `<table border=2>
     <tr>
@@ -189,8 +117,8 @@ export default function main(command?: string): void {
     </tr>
     <tr>
       <td>${tattoo.name}</td>
-      ${displayAmount(tattoo) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
-      ${visitUrl("account_tattoos.php").includes("cryptotat.gif") ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+      ${displayAmount(tattoo) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
+      ${haveTattoo ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
     </tr>
   </table>`;
   printHtml(sanitizeString(tattooTable), false);
@@ -206,12 +134,13 @@ export default function main(command?: string): void {
     </tr>
     <tr>
       <td>Tiny Plastic Santa Claus Skeleton</td>
-      ${displayAmount(familiarSeed) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
-      ${haveFamiliar(familiar) ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+      ${displayAmount(familiarSeed) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
+      ${haveFamiliar(familiar) ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
     </tr>
   </table>`;
   printHtml(sanitizeString(familiarTable), false);
 
+  const singleEquipItems = $items`burnt bone belt, hot boning knife, smoldering vertebra`;
   print("Equipment", "#FFFF00");
   let equipmentTable = "<table border=2>";
   equipmentTable += `<tr>
@@ -237,28 +166,44 @@ export default function main(command?: string): void {
         sickoAmount = 1;
     }
 
-    const singleEquip = visitUrl(`desc_item.php?whichitem=${x.descid}`).includes(
-      "You may not equip more than one of these at a time.",
-    );
+    const singleEquip = singleEquipItems.includes(x);
     if (singleEquip) {
       sickoAmount = 1;
     }
 
     equipmentTable += `<tr>
     <td>${x.name}</td>
-    ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
-    ${availableAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    ${displayAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
+    ${availableAmount(x) >= 1 ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
     ${availableAmount(x) >= sickoAmount ? `<td color="green">` : `<td>`}${availableAmount(x)} / ${sickoAmount}</td>
     <td>${toSlot(x)}</td>
-    ${singleEquip ? `<td color="green">☑️` : `<td color="red">❌`}</td>
+    ${singleEquip ? `<td color="green">☑️` : `<td color="purple">❌`}</td>
     </tr>`;
   });
   equipmentTable += "</table>";
   printHtml(sanitizeString(equipmentTable), false);
 
-  bufferToFile(
-    `
-      <h1>Crimbo 2025 Report</h1>
+  const wonCrimbo =
+    allDisplayed(equippable) &&
+    allDisplayed(oneOffs) &&
+    allDisplayed(skillBooks) &&
+    allDisplayed(skillBooks.map((i) => toItem(`${i.name} (used)`))) &&
+    allDisplayed(consumables) &&
+    consumables.every((i) => consumeHistory.includes(i.name)) &&
+    displayAmount(tattoo) >= 1 &&
+    haveTattoo &&
+    displayAmount(familiarSeed) >= 1 &&
+    haveFamiliar(familiar);
+
+  if (wonCrimbo) {
+    printHtml("You won crimbo! Good job!");
+  }
+
+  if (args.html) {
+    print(`Writing results to data/bcrimbo_${myName()}.html`, "#FFFF00");
+    bufferToFile(
+      `
+      <h1>Crimbo 2025 Report</h1>${wonCrimbo ? "You won crimbo! Good job!" : ""}
       <div style="display: flex; width: 100vw; flex-wrap: wrap;">
         <div>
           <h2>One-offs</h2>
@@ -286,6 +231,7 @@ export default function main(command?: string): void {
         </div>
       </div>
     `,
-    `data/bcrimbo_${myName()}.html`,
-  );
+      `data/bcrimbo_${myName()}.html`,
+    );
+  }
 }

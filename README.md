@@ -1,12 +1,17 @@
-# bcrimbo
+# bcrimbo - Bears' Crimbo 2025 Report Generator
 
-Crimbo 2025 item checklist. Emits to gcli and data/bcrimbo.html
+A tool for checking whether you've had the maximum amount of fun this Crimbo 2025.\
+Maximum fun is defined as:
+
+- Having at least one of every item in your display case
+- Having consumed at least one of every food and drink
+- Having unlocked the tattoo and the familiar
 
 Installation: `git checkout bearsdotzone/bcrimbo release`
 
 Usage: `bcrimbo`
 
-<!-- 
+<!--
 # Development
 
 First turn your TypeScript files into something KoLmafia can understand by running
